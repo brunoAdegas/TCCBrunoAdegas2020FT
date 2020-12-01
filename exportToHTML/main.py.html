@@ -1,0 +1,185 @@
+<html>
+<head>
+<title>main.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #a9b7c6;}
+.s1 { color: #cc7832;}
+.s2 { color: #808080;}
+.s3 { color: #6a8759;}
+.s4 { color: #6897bb;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+main.py</font>
+</center></td></tr></table>
+<pre>
+<span class="s1">from </span><span class="s0">tkinter </span><span class="s1">import </span><span class="s0">*</span>
+<span class="s1">from </span><span class="s0">tkinter </span><span class="s1">import </span><span class="s0">filedialog</span>
+<span class="s1">import </span><span class="s0">nltk </span><span class="s1">as </span><span class="s0">nltk</span>
+<span class="s1">import </span><span class="s0">csv</span>
+<span class="s1">from </span><span class="s0">nltk.corpus </span><span class="s1">import </span><span class="s0">stopwords</span>
+
+<span class="s2">#nltk.download('rslp')</span>
+<span class="s2">#nltk.download('stopwords')</span>
+
+
+<span class="s1">if </span><span class="s0">__name__ == </span><span class="s3">'__main__'</span><span class="s0">:</span>
+
+
+    <span class="s1">class </span><span class="s0">Application:</span>
+        <span class="s1">def </span><span class="s0">__init__(self</span><span class="s1">, </span><span class="s0">master=</span><span class="s1">None</span><span class="s0">):</span>
+            <span class="s1">def </span><span class="s0">inserirPalavraChave():</span>
+                <span class="s0">palavraChaveInput = palavraChaveEntry.get()</span>
+                <span class="s0">setPCBrutas = set(palavraChaveInput.split())</span>
+                <span class="s0">setPCLimpas = stemmingPC(setPCBrutas)</span>
+                <span class="s0">listaPC[</span><span class="s3">&quot;text&quot;</span><span class="s0">] = setPCLimpas</span>
+                <span class="s1">return </span><span class="s0">setPCLimpas</span>
+
+            <span class="s1">def </span><span class="s0">stemmingPC(setPCBrutas):</span>
+                <span class="s0">stemPC = nltk.stem.RSLPStemmer()</span>
+                <span class="s0">listaPCLimpas = []</span>
+                <span class="s1">for </span><span class="s0">w </span><span class="s1">in </span><span class="s0">setPCBrutas:</span>
+                    <span class="s0">stemmingPC = stemPC.stem(w)</span>
+                    <span class="s0">listaPCLimpas.append(stemmingPC)</span>
+                <span class="s1">return </span><span class="s0">listaPCLimpas</span>
+
+            <span class="s1">def </span><span class="s0">stemmingResposta(listaRespostas):</span>
+                <span class="s0">stemResposta = nltk.stem.RSLPStemmer()</span>
+                <span class="s0">stopwords = nltk.corpus.stopwords.words(</span><span class="s3">'portuguese'</span><span class="s0">)</span>
+                <span class="s1">for </span><span class="s0">w </span><span class="s1">in </span><span class="s0">listaRespostas:</span>
+                        <span class="s0">respostaProcessadaAluno = []</span>
+                        <span class="s0">respostaAluno = w.getRespostaAluno()</span>
+                        <span class="s0">listaPalavrasRespostaAluno = set(respostaAluno.split())</span>
+                        <span class="s0">listaPalavrasRespostaAlunoSemStopWord = [palavra </span><span class="s1">for </span><span class="s0">palavra </span><span class="s1">in </span><span class="s0">listaPalavrasRespostaAluno </span><span class="s1">if </span><span class="s0">palavra </span><span class="s1">not in </span><span class="s0">stopwords]</span>
+                        <span class="s1">for </span><span class="s0">j </span><span class="s1">in </span><span class="s0">listaPalavrasRespostaAlunoSemStopWord:</span>
+                            <span class="s0">stemminResposta = stemResposta.stem(j)</span>
+                            <span class="s0">respostaProcessadaAluno.append(stemminResposta)</span>
+                        <span class="s0">w.setRespostaAluno(respostaProcessadaAluno)</span>
+                        <span class="s0">print(</span><span class="s3">&quot;resposta processada:&quot;</span><span class="s1">, </span><span class="s0">w.getRespostaAluno())</span>
+                <span class="s1">return </span><span class="s0">listaRespostas</span>
+
+            <span class="s2">#falta pegar as PCs</span>
+            <span class="s1">def </span><span class="s0">calcularDistanciaJaccard(listaRespostasLimpas):</span>
+                <span class="s0">listaPCLimpas = inserirPalavraChave()</span>
+                <span class="s1">for </span><span class="s0">w </span><span class="s1">in </span><span class="s0">listaRespostasLimpas:</span>
+                    <span class="s0">print(w.getRespostaAluno())</span>
+                    <span class="s0">setResposta = set(w.getRespostaAluno())</span>
+                    <span class="s0">setConceito = set(listaPCLimpas)</span>
+                    <span class="s0">print(</span><span class="s3">&quot;lista palavras chaves:&quot;</span><span class="s1">, </span><span class="s0">setConceito)</span>
+                    <span class="s0">distJaccard = float(len(setConceito &amp; setResposta)) / len(setConceito | setResposta)</span>
+                    <span class="s0">w.setCoeficiente(distJaccard)</span>
+                    <span class="s0">print(</span><span class="s3">&quot;valor distancia Jaccard:&quot;</span><span class="s1">, </span><span class="s0">distJaccard)</span>
+
+            <span class="s1">def </span><span class="s0">browseFiles():</span>
+                <span class="s0">filename = filedialog.askopenfilename(initialdir=</span><span class="s3">&quot;/&quot;</span><span class="s1">,</span>
+                                                      <span class="s0">title=</span><span class="s3">&quot;Select a File&quot;</span><span class="s1">,</span>
+                                                      <span class="s0">filetypes=((</span><span class="s3">&quot;Text files&quot;</span><span class="s1">,</span>
+                                                                  <span class="s3">&quot;*.txt*&quot;</span><span class="s0">)</span><span class="s1">,</span>
+                                                                 <span class="s0">(</span><span class="s3">&quot;all files&quot;</span><span class="s1">,</span>
+                                                                  <span class="s3">&quot;*.*&quot;</span><span class="s0">)))</span>
+                <span class="s0">labelArquivoSelecionado[</span><span class="s3">&quot;text&quot;</span><span class="s0">] = (</span><span class="s3">&quot;Arquivo selecionado: &quot; </span><span class="s0">+ filename)</span>
+                <span class="s0">arquivo = open(filename</span><span class="s1">, </span><span class="s3">'r'</span><span class="s1">, </span><span class="s0">encoding=</span><span class="s3">&quot;utf8&quot;</span><span class="s0">)</span>
+                <span class="s0">reader = csv.DictReader(arquivo)</span>
+                <span class="s0">listaRespostas = []</span>
+                <span class="s1">for </span><span class="s0">linha </span><span class="s1">in </span><span class="s0">reader:</span>
+                    <span class="s0">print(</span><span class="s3">&quot;RA:&quot;</span><span class="s1">, </span><span class="s0">linha[</span><span class="s3">'id'</span><span class="s0">]</span><span class="s1">, </span><span class="s3">&quot;Resposta:&quot;</span><span class="s1">, </span><span class="s0">linha[</span><span class="s3">'resposta'</span><span class="s0">])</span>
+                    <span class="s0">idAluno = linha[</span><span class="s3">'id'</span><span class="s0">]</span>
+                    <span class="s0">respostaAluno = linha[</span><span class="s3">'resposta'</span><span class="s0">]</span>
+                    <span class="s0">newResposta = Resposta(idAluno</span><span class="s1">, </span><span class="s0">respostaAluno</span><span class="s1">, </span><span class="s4">0</span><span class="s0">)</span>
+                    <span class="s0">listaRespostas.append(newResposta)</span>
+                <span class="s0">listaRespostasLimpas = stemmingResposta(listaRespostas)</span>
+                <span class="s0">calcularDistanciaJaccard(listaRespostasLimpas)</span>
+                <span class="s1">return </span><span class="s0">listaRespostas</span>
+
+            <span class="s1">class </span><span class="s0">Resposta:</span>
+                <span class="s1">def </span><span class="s0">__init__(self</span><span class="s1">, </span><span class="s0">id</span><span class="s1">, </span><span class="s0">respostaAluno</span><span class="s1">, </span><span class="s0">coeficiente):</span>
+                    <span class="s0">self.id = id</span>
+                    <span class="s0">self.respostaAluno = respostaAluno</span>
+                    <span class="s0">self.coeficiente = coeficiente</span>
+
+                <span class="s1">def </span><span class="s0">setId(self</span><span class="s1">, </span><span class="s0">id):</span>
+                    <span class="s0">self.id = id</span>
+
+                <span class="s1">def </span><span class="s0">setRespostaAluno(self</span><span class="s1">, </span><span class="s0">respostaAluno):</span>
+                    <span class="s0">self.respostaAluno = respostaAluno</span>
+
+                <span class="s1">def </span><span class="s0">setCoeficiente(self</span><span class="s1">, </span><span class="s0">coeficiente):</span>
+                    <span class="s0">self.coeficiente = coeficiente</span>
+
+                <span class="s1">def </span><span class="s0">getId(self):</span>
+                    <span class="s1">return </span><span class="s0">self.id</span>
+
+                <span class="s1">def </span><span class="s0">getRespostaAluno(self):</span>
+                    <span class="s1">return </span><span class="s0">self.respostaAluno</span>
+
+                <span class="s1">def </span><span class="s0">getCoefieciente(self):</span>
+                    <span class="s1">return </span><span class="s0">self.coeficiente</span>
+
+
+             <span class="s2">#definição dos elementos gráficos</span>
+            <span class="s0">labelEntryPalavraChave = Label(root</span><span class="s1">,</span>
+                                           <span class="s0">text=</span><span class="s3">&quot;Digite as Palavras Chave Desejadas na Resposta&quot;</span><span class="s1">,</span>
+                                           <span class="s0">width=</span><span class="s4">50</span><span class="s1">, </span><span class="s0">height=</span><span class="s4">4</span><span class="s1">,</span>
+                                           <span class="s0">fg=</span><span class="s3">&quot;blue&quot;</span><span class="s0">)</span>
+
+            <span class="s0">palavraChaveEntry = Entry(root</span><span class="s1">,</span>
+                                      <span class="s0">width=</span><span class="s4">50</span><span class="s1">,</span>
+                                      <span class="s0">fg=</span><span class="s3">&quot;red&quot;</span><span class="s0">)</span>
+
+            <span class="s0">buttonInserePalavraChave = Button(root</span><span class="s1">,</span>
+                                       <span class="s0">text=</span><span class="s3">&quot;Inserir Palavras Chave&quot;</span><span class="s1">,</span>
+                                       <span class="s0">command= inserirPalavraChave)</span>
+
+            <span class="s0">listaPC = Label(root</span><span class="s1">,</span>
+                            <span class="s0">text=</span><span class="s3">&quot;&quot;</span><span class="s1">,</span>
+                            <span class="s0">width=</span><span class="s4">20</span><span class="s1">, </span><span class="s0">height=</span><span class="s4">4</span><span class="s0">)</span>
+
+            <span class="s0">labelListaPC = Label(root</span><span class="s1">,</span>
+                                 <span class="s0">text=</span><span class="s3">&quot;Lista Palavras Chave:&quot;</span><span class="s1">,</span>
+                                 <span class="s0">width=</span><span class="s4">20</span><span class="s1">, </span><span class="s0">height=</span><span class="s4">4</span><span class="s0">)</span>
+
+            <span class="s0">labelEntryResposta = Label(root</span><span class="s1">,</span>
+                                       <span class="s0">text=</span><span class="s3">&quot;Respostas dos Alunos:&quot;</span><span class="s1">,</span>
+                                       <span class="s0">width=</span><span class="s4">20</span><span class="s1">, </span><span class="s0">height=</span><span class="s4">4</span><span class="s0">)</span>
+
+            <span class="s0">buttonInsereArquivoResposta= Button(root</span><span class="s1">,</span>
+                                                <span class="s0">text=</span><span class="s3">&quot;Selecionar Arquivo de Respostas&quot;</span><span class="s1">,</span>
+                                                <span class="s0">command=browseFiles)</span>
+
+            <span class="s0">labelArquivoSelecionado = Label(root</span><span class="s1">,</span>
+                                            <span class="s0">text=</span><span class="s3">&quot;&quot;</span><span class="s1">,</span>
+                                            <span class="s0">width=</span><span class="s4">100</span><span class="s1">, </span><span class="s0">height=</span><span class="s4">4</span><span class="s0">)</span>
+            <span class="s0">listaRespostaAluno = Message(root</span><span class="s1">,</span>
+                                       <span class="s0">text=</span><span class="s3">&quot;&quot;</span><span class="s1">,</span>
+                                       <span class="s0">width=</span><span class="s4">600</span><span class="s1">,</span>
+                                       <span class="s0">background=</span><span class="s3">&quot;white&quot;</span><span class="s0">)</span>
+
+
+
+
+            <span class="s2">#grid dos elementos gráficos</span>
+            <span class="s0">labelEntryPalavraChave.grid(column=</span><span class="s4">0</span><span class="s1">, </span><span class="s0">row=</span><span class="s4">0</span><span class="s0">)</span>
+            <span class="s0">palavraChaveEntry.grid(column=</span><span class="s4">0</span><span class="s1">, </span><span class="s0">row=</span><span class="s4">1</span><span class="s0">)</span>
+            <span class="s0">buttonInserePalavraChave.grid(column=</span><span class="s4">0</span><span class="s1">, </span><span class="s0">row=</span><span class="s4">2</span><span class="s0">)</span>
+            <span class="s0">labelListaPC.grid(column=</span><span class="s4">0</span><span class="s1">, </span><span class="s0">row=</span><span class="s4">3</span><span class="s0">)</span>
+            <span class="s0">listaPC.grid(column=</span><span class="s4">0</span><span class="s1">, </span><span class="s0">row=</span><span class="s4">4</span><span class="s0">)</span>
+            <span class="s0">buttonInsereArquivoResposta.grid(column=</span><span class="s4">0</span><span class="s1">, </span><span class="s0">row=</span><span class="s4">5</span><span class="s0">)</span>
+            <span class="s0">labelArquivoSelecionado.grid(column=</span><span class="s4">0</span><span class="s1">, </span><span class="s0">row=</span><span class="s4">6</span><span class="s0">)</span>
+            <span class="s0">labelEntryResposta.grid(column=</span><span class="s4">2</span><span class="s1">, </span><span class="s0">row=</span><span class="s4">0</span><span class="s0">)</span>
+            <span class="s0">listaRespostaAluno.grid(column=</span><span class="s4">2</span><span class="s1">, </span><span class="s0">row=</span><span class="s4">1</span><span class="s0">)</span>
+
+
+    <span class="s0">root = Tk()</span>
+    <span class="s0">Application(root)</span>
+    <span class="s0">root.title(</span><span class="s3">&quot;S.A.D.&quot;</span><span class="s0">)</span>
+    <span class="s0">root.geometry(</span><span class="s3">&quot;900x900&quot;</span><span class="s0">)</span>
+    <span class="s0">root.mainloop()</span>
+
+
+</pre>
+</body>
+</html>
