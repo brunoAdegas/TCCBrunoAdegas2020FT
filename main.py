@@ -43,41 +43,54 @@ if __name__ == '__main__':
                         for j in listaPalavrasRespostaAlunoSemStopWord:
                             stemminResposta = stemResposta.stem(j)
                             respostaProcessadaAluno.append(stemminResposta)
-                        w.setRespostaAluno(respostaProcessadaAluno)
-                        print("Resposta Processada:", w.getRespostaAluno())
+                        w.setRespostaAlunoProcessada(respostaProcessadaAluno)
+                        print("Resposta Processada:", w.getRespostaAlunoProcessada())
                 return listaRespostas
 
             #calculo da distancia de Jaccard
             def calcularDistanciaJaccard(listaRespostasLimpas):
                 listaPCLimpas = inserirPalavraChave()
                 for w in listaRespostasLimpas:
+                    numPalavrasResposta = 0
                     for n in listaPCLimpas:
-                        resposta = w.getRespostaAluno()
+                        resposta = w.getRespostaAlunoProcessada()
                         contadorPC = resposta.count(n)
-                        print(contadorPC)
-                        if(contadorPC > 0):
-                            #não sei oq fazer ainda
-                            #n de palavras com radicais iguais
-                            print("tem contador aqui")
+                        numPalavrasResposta += contadorPC
+                    w.setNumPalavrasUsadas(numPalavrasResposta)
                     print(w.getRespostaAluno())
-                    setResposta = set(w.getRespostaAluno())
+                    setResposta = set(w.getRespostaAlunoProcessada())
                     setConceito = set(listaPCLimpas)
                     print("lista palavras chaves:", setConceito)
                     distJaccard = float(len(setConceito & setResposta)) / len(setConceito | setResposta)
                     w.setCoeficiente(distJaccard)
                     print("Valor distancia Jaccard:", distJaccard)
-                    mensagem = ("RA: {idAluno} \nResposta Processada: {resp} \nCoeficiente: {sim}").format(idAluno=w.getId(), resp=w.getRespostaAluno(), sim=w.getCoefieciente())
+                    mensagem = ("RA: {idAluno}\nResposta Completa: {respCompleta}\nResposta Processada: {resp}\nCoeficiente: {sim:.2f}\nNúmero Palavras usados na resposta: {num}")\
+                                                                                                                                               .format(idAluno=w.getId(),
+                                                                                                                                               respCompleta=w.getRespostaAluno(),
+                                                                                                                                               resp=w.getRespostaAlunoProcessada(),
+                                                                                                                                               sim=w.getCoefieciente(),
+                                                                                                                                               num=numPalavrasResposta)
                     mb.showinfo("Similaridade das Respostas", mensagem)
                 stringPrint = " "
                 #ordenar as respostas de maior similaridade para menor
                 listaSorted = sorted(listaRespostasLimpas, key=attrgetter('coeficiente'), reverse=True)
                 for x in listaSorted:
                     ra = x.id
+                    resp = x.respostaAluno
                     coe = x.coeficiente
-                    stringPrint += ("RA: {idAluno} | Coeficiente: {coeF} \n").format(idAluno=ra, coeF=coe)
+                    numP = x.numPalavrasUsadas
+                    stringRA = ("RA: {idAluno}").format(idAluno=ra)
+                    stringResp = ("Resposta: {respComp}").format(respComp=resp)
+                    stringCoef = ("Coeficiente: {coeF:.2f}").format(coeF=coe)
+                    stringNumP = ("Numero Palavras Chave: {num}").format(num=numP)
+                    listaRespostasPrint.insert(END, stringRA)
+                    listaRespostasPrint.insert(END, stringResp)
+                    listaRespostasPrint.insert(END, stringCoef)
+                    listaRespostasPrint.insert(END, stringNumP)
+                    listaRespostasPrint.insert(END, "<-------------------------------------------------------->")
                 listaRespostasPrint.configure(justify="left")
                 #colocar scroll na lista de respostas
-                listaRespostasPrint["text"] = stringPrint
+
 
             #abre o explorador de arquivos para escolher o arquivo de respostas e já manda calcular a similaridade a partir dos dados contidos no arquivo
             def browseFiles():
@@ -96,7 +109,7 @@ if __name__ == '__main__':
                     print("RA:", linha['id'], "Resposta:", linha['resposta'])
                     idAluno = linha['id']
                     respostaAluno = linha['resposta']
-                    newResposta = Resposta(idAluno, respostaAluno, 0)
+                    newResposta = Resposta(idAluno, respostaAluno, 0, " ", 0)
                     listaRespostas.append(newResposta)
                 listaRespostasLimpas = stemmingResposta(listaRespostas)
                 calcularDistanciaJaccard(listaRespostasLimpas)
@@ -104,10 +117,12 @@ if __name__ == '__main__':
 
             #definição da classe Resposta
             class Resposta:
-                def __init__(self, id, respostaAluno, coeficiente):
+                def __init__(self, id, respostaAluno, respostaAlunoProcessada, coeficiente, numPalavrasUsadas):
                     self.id = id
                     self.respostaAluno = respostaAluno
+                    self.respostaAlunoProcessada = respostaAlunoProcessada
                     self.coeficiente = coeficiente
+                    self.numPalavrasUsadas =numPalavrasUsadas
 
                 def setId(self, id):
                     self.id = id
@@ -115,8 +130,14 @@ if __name__ == '__main__':
                 def setRespostaAluno(self, respostaAluno):
                     self.respostaAluno = respostaAluno
 
+                def setRespostaAlunoProcessada(self, respostaAlunoProcessada):
+                    self.respostaAlunoProcessada = respostaAlunoProcessada
+
                 def setCoeficiente(self, coeficiente):
                     self.coeficiente = coeficiente
+
+                def setNumPalavrasUsadas(self, numPalavrasUsadas):
+                    self.numPalavrasUsadas = numPalavrasUsadas
 
                 def getId(self):
                     return self.id
@@ -124,8 +145,14 @@ if __name__ == '__main__':
                 def getRespostaAluno(self):
                     return self.respostaAluno
 
+                def getRespostaAlunoProcessada(self):
+                    return self.respostaAlunoProcessada
+
                 def getCoefieciente(self):
                     return self.coeficiente
+
+                def getNumPalavrasUsadas(self):
+                    return self.numPalavrasUsadas
 
 
              #definição dos elementos gráficos
@@ -165,9 +192,12 @@ if __name__ == '__main__':
                                    text="Lista Respostas",
                                    width=20, height=4)
 
-            listaRespostasPrint = Label(root,
-                                   text=""
-                                   )
+            listaRespostasPrint = Listbox(root,
+                                          yscrollcommand=scrollbar.set,
+                                          xscrollcommand=scrollbar.set,
+                                          width=100,
+                                          relief=RIDGE
+                                          )
 
             #grid dos elementos gráficos
             labelEntryPalavraChave.grid(column=0, row=0)
@@ -181,6 +211,7 @@ if __name__ == '__main__':
             listaRespostasPrint.grid(column=0, row=8)
 
     root = Tk()
+    scrollbar = Scrollbar(root)
     Application(root)
     root.title("Prototipo De Assistência Ao Docente")
     root.geometry("700x700")
