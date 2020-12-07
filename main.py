@@ -3,6 +3,8 @@ from tkinter import *
 from tkinter import filedialog
 import nltk as nltk
 import csv
+import unicodedata
+import re
 from nltk.corpus import stopwords
 from tkinter import messagebox as mb
 from operator import itemgetter, attrgetter
@@ -31,6 +33,11 @@ if __name__ == '__main__':
                     listaPCLimpas.append(stemmingPC)
                 return listaPCLimpas
 
+            def removerAcentosECaracteres(resposta):
+                nfkd = unicodedata.normalize('NFKD', resposta)
+                respostaNormalizada = u"".join([c for c in nfkd if not unicodedata.combining(c)])
+                return re.sub('[^a-zA-Z0-9 \\\]', '', respostaNormalizada)
+
             #Pré-processamento das palavras inclusas nas respostas dos alunos
             def stemmingResposta(listaRespostas):
                 stemResposta = nltk.stem.RSLPStemmer()
@@ -38,7 +45,8 @@ if __name__ == '__main__':
                 for w in listaRespostas:
                         respostaProcessadaAluno = []
                         respostaAluno = w.getRespostaAluno()
-                        listaPalavrasRespostaAluno = set(respostaAluno.split())
+                        respostaAlunoNormalizada = removerAcentosECaracteres(respostaAluno)
+                        listaPalavrasRespostaAluno = set(respostaAlunoNormalizada.split())
                         listaPalavrasRespostaAlunoSemStopWord = [palavra for palavra in listaPalavrasRespostaAluno if palavra not in stopwords]
                         for j in listaPalavrasRespostaAlunoSemStopWord:
                             stemminResposta = stemResposta.stem(j)
@@ -52,10 +60,12 @@ if __name__ == '__main__':
                 listaPCLimpas = inserirPalavraChave()
                 for w in listaRespostasLimpas:
                     numPalavrasResposta = 0
+                    resposta = w.getRespostaAlunoProcessada()
                     for n in listaPCLimpas:
-                        resposta = w.getRespostaAlunoProcessada()
+                        print("resp", resposta)
                         contadorPC = resposta.count(n)
-                        numPalavrasResposta += contadorPC
+                        print(n , "qtd ", contadorPC)
+                        numPalavrasResposta = contadorPC + numPalavrasResposta
                     w.setNumPalavrasUsadas(numPalavrasResposta)
                     print(w.getRespostaAluno())
                     setResposta = set(w.getRespostaAlunoProcessada())
