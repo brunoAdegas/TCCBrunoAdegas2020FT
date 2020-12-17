@@ -70,11 +70,11 @@ if __name__ == '__main__':
                     print(w.getRespostaAluno())
                     setResposta = set(w.getRespostaAlunoProcessada())
                     setConceito = set(listaPCLimpas)
-                    print("lista palavras chaves:", setConceito)
+                    print("lista palavras-chave:", setConceito)
                     distJaccard = float(len(setConceito & setResposta)) / len(setConceito | setResposta)
                     w.setCoeficiente(distJaccard)
-                    print("Valor distancia Jaccard:", distJaccard)
-                    mensagem = ("RA: {idAluno}\nResposta Completa: {respCompleta}\nResposta Processada: {resp}\nCoeficiente: {sim:.2f}\nNúmero Palavras usados na resposta: {num}")\
+                    print("Valor coeficiente Jaccard:", distJaccard)
+                    mensagem = ("RA: {idAluno}\nResposta Completa: {respCompleta}\nResposta Processada: {resp}\nCoeficiente: {sim:.2f}\nNúmero de Palavras-Chave na resposta: {num}")\
                                                                                                                                                .format(idAluno=w.getId(),
                                                                                                                                                respCompleta=w.getRespostaAluno(),
                                                                                                                                                resp=w.getRespostaAlunoProcessada(),
@@ -92,7 +92,7 @@ if __name__ == '__main__':
                     stringRA = ("RA: {idAluno}").format(idAluno=ra)
                     stringResp = ("Resposta: {respComp}").format(respComp=resp)
                     stringCoef = ("Coeficiente: {coeF:.2f}").format(coeF=coe)
-                    stringNumP = ("Numero Palavras Chave: {num}").format(num=numP)
+                    stringNumP = ("Número Palavras-Chave: {num}").format(num=numP)
                     listaRespostasPrint.insert(END, stringRA)
                     listaRespostasPrint.insert(END, stringResp)
                     listaRespostasPrint.insert(END, stringCoef)
@@ -167,7 +167,7 @@ if __name__ == '__main__':
 
              #definição dos elementos gráficos
             labelEntryPalavraChave = Label(root,
-                                           text="Digite as Palavras Chave Desejadas na Resposta",
+                                           text="Digite as Palavras-Chave esperadas nas respostas",
                                            width=50, height=4,
                                            fg="blue")
 
@@ -177,7 +177,7 @@ if __name__ == '__main__':
                                       relief=RIDGE)
 
             buttonInserePalavraChave = Button(root,
-                                       text="Inserir Palavras Chave",
+                                       text="Inserir Palavras-Chave",
                                        command= inserirPalavraChave,
                                        justify="center"
                                        )
@@ -187,7 +187,7 @@ if __name__ == '__main__':
                             height=4)
 
             labelListaPC = Label(root,
-                                 text="Lista de Palavras Chave:",
+                                 text="Lista de Palavras-Chave:",
                                  width=20, height=4)
 
             buttonInsereArquivoResposta= Button(root,
